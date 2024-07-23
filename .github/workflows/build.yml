@@ -1,8 +1,42 @@
-my_project/
-├── .github/
-│   └── workflows/
-│       └── build.yml
-├── example.c
-├── example.h
-├── example.i
-└── README.md
+name: Build and Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install SWIG
+      run: sudo apt-get install -y swig
+
+    - name: Install Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install build dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc python3-dev
+
+    - name: Generate SWIG wrapper
+      run: swig -python -o example_wrap.c example.i
+
+    - name: Build shared library
+      run: gcc -shared -o _example.so example.c example_wrap.c -I/usr/include/python3.x
+
+    - name: Test the build
+      run: |
+        echo "import example" > test.py
+        echo "print(example.add(3, 5))" >> test.py
+        python3 test.py
