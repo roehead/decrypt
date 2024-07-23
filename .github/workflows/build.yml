@@ -1,0 +1,8 @@
+my_project/
+├── .github/
+│   └── workflows/
+│       └── build.yml
+├── example.c
+├── example.h
+├── example.i
+└── README.md
